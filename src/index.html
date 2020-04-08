@@ -3,7 +3,151 @@
     <head>
         <script src="connection.js"></script>
     </head>
-    <body>
-        <h1>testing</h1>
+    <body bgcolor="#29333D">
+        <h1 align="center" id="heading">GrOOPChat</h1>
     </body>
+	<head>
+	<head>
+  <style>
+    #heading { color: white;}
+  </style>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+	.open-button {
+  background-color: #06204c;
+  color: dark blue;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 100px;
+  right: 800px;
+  width: 280px;
+}
+
+
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 300px;
+  right: 1350px;
+  border: 3px solid grey;
+  z-index: 9;
+}
+
+.chat-popup2 {
+  display: none;
+  position: fixed;
+  bottom: 300px;
+  right: 250px;
+  border: 3px solid grey;
+  z-index: 9;
+}
+
+.messagebox
+{
+  display: none;
+  position: fixed;
+  bottom: 200px;
+  right: 750px;
+  border: 3px solid grey;
+}
+
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: black;
+}
+
+
+.form-container textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+  resize: none;
+  min-height: 200px;
+}
+
+.form-container textarea:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+.form-container .btn {
+  background-color: #003300;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+.form-container .cancel {
+  background-color: #9f6060;
+}
+
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+
+<button class="open-button" onclick="openForm()">Chat</button>
+
+<div class="chat-popup" id="myForm">
+  <form action="/action_page.php" class="form-container">
+    <h1 align="center" id="heading">Chatter 1</h1>
+
+    <label for="msg"><b>Message</b></label>
+    <textarea placeholder="Type message.." name="msg1" required></textarea>
+
+    <button type="submit" class="btn">Send</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div>
+
+<div class="chat-popup2" id="myForm2">
+  <form action="/action_page.php" class="form-container">
+    <h1 align="center" id="heading">Chatter 2</h1>
+
+    <label for="msg"><b>Message</b></label>
+    <textarea placeholder="Type message.." name="msg2" required></textarea>
+
+    <button type="submit" class="btn">Send</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div>
+
+<div class= "messagebox" id="myForm3">
+<form action="/action_page.php">
+    <h1 align="center" id="heading">Message Box</h1>
+    <textarea placeholder="Message displayed here.." name="msgBox" ROWS="35" COLS="45"required></textarea>
+ </form>
+</div>
+
+<script>
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+  document.getElementById("myForm2").style.display = "block";
+  document.getElementById("myForm3").style.display = "block";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+  document.getElementById("myForm2").style.display = "none";
+  document.getElementById("myForm3").style.display = "none";
+}
+
+</script>
+
+</body>
 </html>
