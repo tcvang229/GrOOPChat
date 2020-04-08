@@ -6,17 +6,43 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// websocket upgrader object
 var upgrader = websocket.Upgrader {
 	ReadBufferSize: 1024,
 	WriteBufferSize: 1024,
 }
 
-func main() {
-	http.HandleFunc("/ws", websocketHandler)
-	http.ListenAndServe(":8080", nil)
+// connected clients
+var clients = make(map[*websocket.Conn]bool)
+
+// broadcast channel
+var broadcast = make(chan Message)
+
+// Message object that'll hold our messages
+type Message struct {
+	//Username string `json:"username"`
+	Message string `json:"message"`
 }
 
-func websocketHandler(writer http.ResponseWriter, request *http.Request) {
+func main() {
+	// publicFileServer will be called if client accesses root path -> /
+	// will show the public files that we want them to see
+	publicFileServer := http.FileServer(http.Dir("../public"))
+	http.Handle("/", publicFileServer)
+
+	// websocketHandler will be called if client accesses /ws path
+	http.HandleFunc("/ws", handleWebSockets)
+	go handleMessages()
+
+	// turn on the server through port 8080
+	server := http.ListenAndServe(":8080", nil)
+	if server != nil {
+		log.Fatal("Error: Failed to start server on port 8080 ", server)
+	}
+}
+
+// what to do when client accesses the -> /ws path
+func handleWebSockets(writer http.ResponseWriter, request *http.Request) {
 	// need to check the origin before calling Upgrade()
 	upgrader.CheckOrigin = func(request *http.Request) bool {
 		return true
@@ -28,20 +54,42 @@ func websocketHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	log.Println("Client successfully connected...")
+	log.Println("Successful connection to websocket path...")
+	defer conn.Close()
+
+	clients[conn] = true
 
 	for {
-		messageType, p, err := conn.ReadMessage()
+		var msg Message
+		//messageType, p, err := conn.ReadMessage()
+		err := conn.ReadJSON(&msg)
+
 		if err!= nil {
-			log.Println(err)
-			return
+			log.Printf("Error in handleWebSockets: %v", err)
+			delete(clients, conn)
+			//return
+			break
 		} 
 
-		log.Println(string(p))
+		broadcast <- msg
 
-		if err := conn.WriteMessage(messageType, p); err != nil {
+		/*if err := conn.WriteMessage(messageType, p); err != nil {
 			log.Println(err)
 			return
+		}*/
+	}
+}
+
+func handleMessages() {
+	for {
+		msg := <-broadcast
+		for client := range clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				log.Printf("Error in handleMessages: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
 		}
 	}
 }

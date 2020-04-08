@@ -3,9 +3,17 @@
 
 var ws = new WebSocket("ws://localhost:8080/ws");
 
+ws.onmessage = function (event) {
+    console.log("Message received " + event.data);
+}
+
 ws.onopen = function () {
     console.log("Successful connection");
-    ws.send("Hello, this my message")
+    ws.send(
+        JSON.stringify({
+            message: "Hello"
+        })
+    );
 }
 
 ws.onclose = function (event) {
