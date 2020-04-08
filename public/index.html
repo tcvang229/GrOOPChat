@@ -29,6 +29,17 @@ body {font-family: Arial, Helvetica, sans-serif;}
   width: 280px;
 }
 
+.username2{
+  position: fixed;
+  bottom: 850px;
+  right: 300px;
+}
+
+.username1{
+  position: fixed;
+  bottom: 850px;
+  right: 1400px;
+}
 
 .chat-popup {
   display: none;
@@ -101,15 +112,15 @@ body {font-family: Arial, Helvetica, sans-serif;}
 </head>
 <body>
 
+<ul id="chat"></ul>
+
 <button class="open-button" onclick="openForm()">Chat</button>
 
 <div class="chat-popup" id="myForm">
   <form action="/action_page.php" class="form-container">
-    <h1 align="center" id="heading">Chatter 1</h1>
-
+  <h1 align="center" id="heading">Chatter 1</h1>
     <label for="msg"><b>Message</b></label>
     <textarea placeholder="Type message.." name="msg1" required></textarea>
-
     <button type="submit" class="btn">Send</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
   </form>
@@ -117,11 +128,9 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 <div class="chat-popup2" id="myForm2">
   <form action="/action_page.php" class="form-container">
-    <h1 align="center" id="heading">Chatter 2</h1>
-
+  <h1 align="center" id="heading">Chatter 2</h1>
     <label for="msg"><b>Message</b></label>
     <textarea placeholder="Type message.." name="msg2" required></textarea>
-
     <button type="submit" class="btn">Send</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
   </form>
@@ -131,6 +140,45 @@ body {font-family: Arial, Helvetica, sans-serif;}
 <form action="/action_page.php">
     <h1 align="center" id="heading">Message Box</h1>
     <textarea placeholder="Message displayed here.." name="msgBox" ROWS="35" COLS="45"required></textarea>
+ </form>
+</div>
+
+<div class= "username1" id="myForm4">
+<form action="/action_page.php">
+<h1 align="center" >Username 1</h1>
+    <textarea placeholder="Type username here..." name="msgBox" id="username1" ROWS="1" COLS="20"required></textarea>
+ </form>
+</div>
+<script>
+
+$(document).ready(function(){
+
+    $("#username1").on("input", function(){
+
+        $("#result1").text($(this).val());
+
+    });
+
+});
+
+</script>
+<script>
+
+$(document).ready(function(){
+
+    $("#username2").on("input", function(){
+
+        $("#result2").text($(this).val());
+
+    });
+
+});
+
+</script>
+<div class= "username2" id="myForm5">
+<form action="/action_page.php">
+<h1 align="center" >Username 2</h1>
+    <textarea placeholder="Type username here..." name="msgBox" id="username2" ROWS="1" COLS="20"required></textarea>
  </form>
 </div>
 
