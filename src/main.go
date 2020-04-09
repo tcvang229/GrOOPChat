@@ -20,7 +20,7 @@ var broadcast = make(chan Message)
 
 // Message object that'll hold our messages
 type Message struct {
-	//Username string `json:"username"`
+	Username string `json:"username"`
 	Message string `json:"message"`
 }
 
@@ -49,6 +49,7 @@ func handleWebSockets(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	conn, err := upgrader.Upgrade(writer, request, nil)
+
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,31 +60,30 @@ func handleWebSockets(writer http.ResponseWriter, request *http.Request) {
 
 	clients[conn] = true
 
+	// CLIENT -> SERVER
+	// infinite loop to take in messages
 	for {
 		var msg Message
-		//messageType, p, err := conn.ReadMessage()
 		err := conn.ReadJSON(&msg)
 
 		if err!= nil {
 			log.Printf("Error in handleWebSockets: %v", err)
 			delete(clients, conn)
-			//return
 			break
 		} 
 
+		log.Printf("%s\n", msg.Message)
 		broadcast <- msg
-
-		/*if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
-		}*/
 	}
 }
 
+// SERVER -> CLIENTS, the messages that were sent by a client 
 func handleMessages() {
+	// infinite loop that will be running concurrently
 	for {
 		msg := <-broadcast
 		for client := range clients {
+			// write out to each client
 			err := client.WriteJSON(msg)
 			if err != nil {
 				log.Printf("Error in handleMessages: %v", err)
