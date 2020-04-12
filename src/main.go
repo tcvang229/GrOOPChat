@@ -6,87 +6,62 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// websocket upgrader object
-var upgrader = websocket.Upgrader {
-	ReadBufferSize: 1024,
-	WriteBufferSize: 1024,
+var clients = make(map[*websocket.Conn]bool) 
+var broadcast = make(chan Message)          
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
-// connected clients
-var clients = make(map[*websocket.Conn]bool)
-
-// broadcast channel
-var broadcast = make(chan Message)
-
-// Message object that'll hold our messages
 type Message struct {
-	Username string `json:"username"`
-	Message string `json:"message"`
+	Message  string `json:"message"`
 }
 
 func main() {
-	// publicFileServer will be called if client accesses root path -> /
-	// will show the public files that we want them to see
-	publicFileServer := http.FileServer(http.Dir("../public"))
-	http.Handle("/", publicFileServer)
+	fs := http.FileServer(http.Dir("../public"))
+	http.Handle("/", fs)
 
-	// websocketHandler will be called if client accesses /ws path
-	http.HandleFunc("/ws", handleWebSockets)
+	http.HandleFunc("/ws", handleConnections)
+
 	go handleMessages()
 
-	// turn on the server through port 8080
-	server := http.ListenAndServe(":8080", nil)
-	if server != nil {
-		log.Fatal("Error: Failed to start server on port 8080 ", server)
+	log.Println("http server started on :8080")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
 	}
 }
 
-// what to do when client accesses the -> /ws path
-func handleWebSockets(writer http.ResponseWriter, request *http.Request) {
-	// need to check the origin before calling Upgrade()
-	upgrader.CheckOrigin = func(request *http.Request) bool {
-		return true
-	}
-
-	conn, err := upgrader.Upgrade(writer, request, nil)
-
+func handleConnections(w http.ResponseWriter, r *http.Request) {
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatal(err)
 	}
+	defer ws.Close()
 
-	log.Println("Successful connection to websocket path...")
-	defer conn.Close()
+	clients[ws] = true
 
-	clients[conn] = true
-
-	// CLIENT -> SERVER
-	// infinite loop to take in messages
 	for {
 		var msg Message
-		err := conn.ReadJSON(&msg)
-
-		if err!= nil {
-			log.Printf("Error in handleWebSockets: %v", err)
-			delete(clients, conn)
+		err := ws.ReadJSON(&msg)
+		if err != nil {
+			log.Printf("error: %v", err)
+			delete(clients, ws)
 			break
-		} 
-
-		log.Printf("%s\n", msg.Message)
+		}
 		broadcast <- msg
 	}
 }
 
-// SERVER -> CLIENTS, the messages that were sent by a client 
 func handleMessages() {
-	// infinite loop that will be running concurrently
 	for {
 		msg := <-broadcast
 		for client := range clients {
-			// write out to each client
 			err := client.WriteJSON(msg)
 			if err != nil {
-				log.Printf("Error in handleMessages: %v", err)
+				log.Printf("error: %v", err)
 				client.Close()
 				delete(clients, client)
 			}
