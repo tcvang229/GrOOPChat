@@ -1,50 +1,8 @@
-var one = Math.floor((Math.random() * 4));
-var two = Math.floor((Math.random() * 4));
-var three = Math.floor(Math.random() * 100);
+var first_name = Math.floor((Math.random() * 4));
+var last_name = Math.floor(Math.random() * 100);
 
-var tall_joker = " tall joker ";
-var octavious = " octavious ";
-var boarder = " boarder ";
-var rainbow_chrome = " blue chrome ";
-var fire_rox = " fire rox ";
-
-switch (one) {
-    case 0:
-        one = lgma;
-        break;
-    case 1:
-        one = octavious;
-        break;
-    case 2:
-        one = boarder;
-        break;
-    case 3:
-        one = rainbow_chrome;
-        break;
-    case 4:
-        one = fire_rox;
-        break;
-}
-
-switch (two) {
-    case 0:
-        two = lgma;
-        break;
-    case 1:
-        two = octavious;
-        break;
-    case 2:
-        two = boarder;
-        break;
-    case 3:
-        two = rainbow_chrome;
-        break;
-    case 4:
-        two = fire_rox;
-        break;
-}
-
-var usernames = one + two + three + ":";
+name_list = ["drudge", "tall-joker", "octavious", "zinger", "blue-chrome", "red-rocs"];
+var name = name_list[first_name] + last_name + ":";
 
 new Vue({
         el: '#app',
@@ -74,7 +32,7 @@ new Vue({
             if (this.newMsg != '') {
                 this.ws.send(
                     JSON.stringify({
-                        username: usernames,
+                        username: name,
                         message: $('<p>').html(this.newMsg).text()
                     })
                 );
